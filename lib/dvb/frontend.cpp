@@ -730,17 +730,21 @@ int eDVBFrontend::openFrontend()
 		eDebug("[eDVBFrontend] m_need_delivery_system_workaround = %d", m_need_delivery_system_workaround);
 
 		eDebug("[eDVBFrontend] opening frontend %d", m_dvbid);
+		eDebug("[eDVBFrontend] Twol1 check frontend m_fd: %d", m_fd);
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+			eDebug("[eDVBFrontend] Twol1a opening frontend m_filename: %s", m_filename.c_str());
+			eDebug("[eDVBFrontend] Twol1b opening frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
 			{
-				eWarning("[eDVBFrontend] failed! (%s) %m", m_filename.c_str());
+				eDebug("[eDVBFrontend] failed! (%s)", m_filename.c_str());
+				eDebug("[eDVBFrontend]Twol1c opening frontend - errorno: %d", errno);
 				return -1;
 			}
 		}
 		else
-			eWarning("[eDVBFrontend] frontend %d already opened", m_dvbid);
+			eDebug("[eDVBFrontend%d]Twol1c frontend already opened", m_dvbid);
 		if (m_dvbversion == 0)
 		{
 			m_dvbversion = DVB_VERSION(3, 0);
