@@ -193,7 +193,7 @@ eDVBResourceManager::eDVBResourceManager()
 	else if (!strncmp(tmp, "wetekhub\n", rd))
 		m_boxtype = WETEKHUB;
 	else {
-		eDebug("[eDVBResourceManager] boxtype detection via /proc/stb/info not possible... use fallback via demux count!");
+		eDebug("[dvb:eDVBResourceManager] boxtype detection via /proc/stb/info not possible... use fallback via demux count!");
 		if (m_demux.size() == 3)
 			m_boxtype = DM800;
 		else if (m_demux.size() < 5)
@@ -202,7 +202,7 @@ eDVBResourceManager::eDVBResourceManager()
 			m_boxtype = DM8000;
 	}
 
-	eDebug("[eDVBResourceManager] found %zd adapter, %zd frontends(%zd sim) and %zd demux, boxtype %d",
+	eDebug("[dvb:eDVBResourceManager] found %zd adapter, %zd frontends(%zd sim) and %zd demux, boxtype %d",
 		m_adapter.size(), m_frontend.size(), m_simulate_frontend.size(), m_demux.size(), m_boxtype);
 
 	m_fbc_mng = new eFBCTunerManager(this);
@@ -231,7 +231,7 @@ void eDVBAdapterLinux::scanDevices()
 		// scan frontends
 	int num_fe = 0;
 
-	eDebug("[eDVBResourceManager] scanning for frontends..");
+	eDebug("[dvb:eDVBResourceManager] scanning for frontends..");
 	while (1)
 	{
 		/*
@@ -808,7 +808,7 @@ PyObject *eDVBResourceManager::setFrontendSlotInformations(ePyObject list)
 		}
 	}
 	if (assigned != m_frontend.size()) {
-		eDebug("[eDVBResourceManager::setFrontendSlotInformations] .. assigned %zd socket informations, but %d registered frontends!",
+		eDebug("[dvb:eDVBResourceManager::setFrontendSlotInformations] .. assigned %zd socket informations, but %d registered frontends!",
 			m_frontend.size(), assigned);
 	}
 	for (eSmartPtrList<eDVBRegisteredFrontend>::iterator i(m_simulate_frontend.begin()); i != m_simulate_frontend.end(); ++i)
@@ -987,7 +987,7 @@ RESULT eDVBResourceManager::allocateFrontend(ePtr<eDVBAllocatedFrontend> &fe, eP
 			c = fbcmng->isCompatibleWith(feparm, *i, fbc_fe, simulate);
 
 
-//			eDebug("[eDVBResourceManager::allocateFrontend] fbcmng->isCompatibleWith slotid : %p (%d), fbc_fe : %p (%d), score : %d", (eDVBRegisteredFrontend *)*i,  i->m_frontend->getSlotID(), fbc_fe, fbc_fe?fbc_fe->m_frontend->getSlotID():-1, c);			
+			eDebug("[eDVBResourceManager::allocateFrontend] fbcmng->isCompatibleWith slotid : %p (%d), fbc_fe : %p (%d), score : %d", (eDVBRegisteredFrontend *)*i,  i->m_frontend->getSlotID(), fbc_fe, fbc_fe?fbc_fe->m_frontend->getSlotID():-1, c);			
 		}
 		else
 		{
@@ -995,11 +995,14 @@ RESULT eDVBResourceManager::allocateFrontend(ePtr<eDVBAllocatedFrontend> &fe, eP
 		}
 
 		if (c)	/* if we have at least one frontend which is compatible with the source, flag this. */
+		{
+			eDebug("[dvb:eDVBResourceManager] allocateFrontend, score=%d", c);
 			foundone = 1;
+		}
 
 		if (!i->m_inuse)
 		{
-//			eDebug("[eDVBResourceManager::allocateFrontend] Slot %d, score %d", i->m_frontend->getSlotID(), c);
+			eDebug("[dvb:eDVBResourceManager::allocateFrontend] Slot %d, score %d", i->m_frontend->getSlotID(), c);
 			if (c > bestval)
 			{
 				bestval = c;
@@ -1010,7 +1013,7 @@ RESULT eDVBResourceManager::allocateFrontend(ePtr<eDVBAllocatedFrontend> &fe, eP
 		}
 		else
 		{
-//			eDebug("[eDVBResourceManager::allocateFrontend] Slot %d, score %d... but BUSY!!!!!!!!!!!", i->m_frontend->getSlotID(), c);
+			eDebug("[dvb:eDVBResourceManager::allocateFrontend] Slot %d, score %d... but BUSY!!!!!!!!!!!", i->m_frontend->getSlotID(), c);
 		}
 
 		eDVBRegisteredFrontend *tmp = *i;
@@ -1054,7 +1057,7 @@ RESULT eDVBResourceManager::allocateFrontendByIndex(ePtr<eDVBAllocatedFrontend> 
 				eDVBRegisteredFrontend *satpos_depends_to_fe = (eDVBRegisteredFrontend *)tmp;
 				if (satpos_depends_to_fe->m_inuse)
 				{
-					eDebug("[eDVBResourceManager] another satpos depending frontend is in use.. so allocateFrontendByIndex not possible!");
+					eDebug("[dvb:eDVBResourceManager] another satpos depending frontend is in use.. so allocateFrontendByIndex not possible!");
 					err = errAllSourcesBusy;
 					goto alloc_fe_by_id_not_possible;
 				}
@@ -1067,7 +1070,7 @@ RESULT eDVBResourceManager::allocateFrontendByIndex(ePtr<eDVBAllocatedFrontend> 
 					eDVBRegisteredFrontend *next = (eDVBRegisteredFrontend *) tmp;
 					if (next->m_inuse)
 					{
-						eDebug("[eDVBResourceManager] another linked frontend is in use.. so allocateFrontendByIndex not possible!");
+						eDebug("[dvb:eDVBResourceManager] another linked frontend is in use.. so allocateFrontendByIndex not possible!");
 						err = errAllSourcesBusy;
 						goto alloc_fe_by_id_not_possible;
 					}
@@ -1079,7 +1082,7 @@ RESULT eDVBResourceManager::allocateFrontendByIndex(ePtr<eDVBAllocatedFrontend> 
 					eDVBRegisteredFrontend *prev = (eDVBRegisteredFrontend *) tmp;
 					if (prev->m_inuse)
 					{
-						eDebug("[eDVBResourceManager] another linked frontend is in use.. so allocateFrontendByIndex not possible!");
+						eDebug("[dvb:eDVBResourceManager] another linked frontend is in use.. so allocateFrontendByIndex not possible!");
 						err = errAllSourcesBusy;
 						goto alloc_fe_by_id_not_possible;
 					}
@@ -1102,7 +1105,7 @@ RESULT eDVBResourceManager::allocateDemux(eDVBRegisteredFrontend *fe, ePtr<eDVBA
 		   never use the first one unless we need a decoding demux. */
 	uint8_t d, a;
 
-	eDebug("[eDVBResourceManager] allocate demux cap=%02X", cap);
+	eDebug("[dvb:eDVBResourceManager] allocate demux cap=%02X", cap);
 	eSmartPtrList<eDVBRegisteredDemux>::iterator i(m_demux.begin());
 
 	if (i == m_demux.end())
@@ -1130,7 +1133,7 @@ RESULT eDVBResourceManager::allocateDemux(eDVBRegisteredFrontend *fe, ePtr<eDVBA
 
 			int in_use = is_decode ? (i->m_demux->getRefCount() != 2) : i->m_inuse;
 
-			//eDebug("[eDVBResourceManager] for DM7025 n=%d, is_decode=%d, in_use=%d refcnt=%d, m_inuse=%d", n, is_decode, in_use, i->m_demux->getRefCount(), i->m_inuse);
+			//eDebug("[dvb:eDVBResourceManager] for DM7025 n=%d, is_decode=%d, in_use=%d refcnt=%d, m_inuse=%d", n, is_decode, in_use, i->m_demux->getRefCount(), i->m_inuse);
 			if ((!in_use) && ((!fe) || (i->m_adapter == fe->m_adapter)))
 			{
 				if ((cap & iDVBChannel::capDecode) && !is_decode)
@@ -1211,7 +1214,7 @@ RESULT eDVBResourceManager::allocateDemux(eDVBRegisteredFrontend *fe, ePtr<eDVBA
 					{
 						i->m_demux->getCAAdapterID(a);
 						i->m_demux->getCADemuxID(d);
-						eDebug("[eDVBResourceManager] allocating shared demux adapter=%d, demux=%d, source=%d", a, d, i->m_demux->getSource());
+						eDebug("[dvb:eDVBResourceManager] allocating shared demux adapter=%d, demux=%d, source=%d", a, d, i->m_demux->getSource());
 						demux = new eDVBAllocatedDemux(i);
 						return 0;
 					}
@@ -1247,7 +1250,7 @@ RESULT eDVBResourceManager::allocateDemux(eDVBRegisteredFrontend *fe, ePtr<eDVBA
 				// take the demux allocated to the same
 				// frontend,  just create a new reference
 				demux = new eDVBAllocatedDemux(i);
-				//eDebug("[eDVBResourceManager] \nallocate demux b = %d\n",n);
+				eDebug("[dvb:eDVBResourceManager] \nallocate demux b = %d\n",n);
 				return 0;
 			}
 		}
@@ -1264,11 +1267,11 @@ RESULT eDVBResourceManager::allocateDemux(eDVBRegisteredFrontend *fe, ePtr<eDVBA
 			{
 				// just create a new reference
 				demux = new eDVBAllocatedDemux(i);
-				//eDebug("\nallocate demux c = %d\n",n);
+				eDebug("\nallocate demux c = %d\n",n);
 				return 0;
 			}
 			unused = i;
-			//eDebug("\nallocate demux d = %d\n", n);
+			eDebug("\nallocate demux d = %d\n", n);
 			break;
 		}
 	}
@@ -1278,7 +1281,7 @@ RESULT eDVBResourceManager::allocateDemux(eDVBRegisteredFrontend *fe, ePtr<eDVBA
 	{
 		unused->m_demux->getCAAdapterID(a);
 		unused->m_demux->getCADemuxID(d);
-		eDebug("[eDVBResourceManager] allocating demux adapter=%d, demux=%d, source=%d", a, d, unused->m_demux->getSource());
+		eDebug("[dvb:eDVBResourceManager] allocating demux adapter=%d, demux=%d, source=%d", a, d, unused->m_demux->getSource());
 		demux = new eDVBAllocatedDemux(unused);
 		if (fe)
 			demux->get().setSourceFrontend(fe->m_frontend->getDVBID());
@@ -1287,7 +1290,7 @@ RESULT eDVBResourceManager::allocateDemux(eDVBRegisteredFrontend *fe, ePtr<eDVBA
 		return 0;
 	}
 
-	eDebug("[eDVBResourceManager] no free demux found");
+	eDebug("[dvb:eDVBResourceManager] no free demux found");
 	return -1;
 }
 
@@ -1327,33 +1330,33 @@ bool eDVBResourceManager::frontendPreferenceAllowsChannelUse(const eDVBChannelID
 	int preferredFrontend = eDVBFrontend::getPreferredFrontend();
 	if (preferredFrontend < 0)
 	{
-		//eDebug("frontend %d allowed, no frontend preference", slotid);      
+		eDebug("frontend %d allowed, no frontend preference", slotid);      
 		return true; /* no frontend preference */
 	}
     
 	if (!((preferredFrontend >= 0) && (preferredFrontend & eDVBFrontend::preferredFrontendPrioForced)) && !((preferredFrontend >= 0) && (preferredFrontend & eDVBFrontend::preferredFrontendPrioHigh)))
 	{
-		//eDebug("frontend %d allowed, sharing/caching channels is allowed for any frontend", slotid);      
+		eDebug("frontend %d allowed, sharing/caching channels is allowed for any frontend", slotid);      
 		return true; /* sharing/caching channels is allowed for any frontend */
 	}
 
 	ePtr<eDVBFrontend> dummy_fe1;
 	if (dummy_fe1->isPreferred(preferredFrontend,slotid))
 	{
-		//eDebug("frontend %d allowed, preferred frontend", slotid);      
+		eDebug("frontend %d allowed, preferred frontend", slotid);      
 		return true; /* preferred frontend */
 	}
 
 	if (!m_list)
 	{
-		//eDebug("frontend %d allowed, no channel list set", slotid);      
+		eDebug("frontend %d allowed, no channel list set", slotid);      
 		return true; /* no channel list set */
 	}
 
 	ePtr<iDVBFrontendParameters> feparm;
 	if (m_list->getChannelFrontendData(channelid, feparm))
 	{
-		//eDebug("frontend %d allowed, channel not found", slotid);      
+		eDebug("frontend %d allowed, channel not found", slotid);      
 		return true; /* channel not found */
 	}
 
@@ -1364,18 +1367,18 @@ bool eDVBResourceManager::frontendPreferenceAllowsChannelUse(const eDVBChannelID
 	{
 		if ((preferredFrontend >= 0) && (preferredFrontend & eDVBFrontend::preferredFrontendPrioForced))
 		{
-			//eDebug("frontend %d forbidden, no preferred frontend available, no sharing allowed", slotid);      
+			eDebug("frontend %d forbidden, no preferred frontend available, no sharing allowed", slotid);      
 			return false; /* no preferred frontend available, no sharing allowed */
 		}
 		else
 		{
-			//eDebug("frontend %d allowed, no new preferred frontend available, use shared or cached channel", slotid);      
+			eDebug("frontend %d allowed, no new preferred frontend available, use shared or cached channel", slotid);      
 			return true; /* no new preferred frontend available, use shared or cached channel */
 		}
 	}
 	else
 	{
-		//eDebug("frontend %d forbidden, a new preferred frontend is available, dont use shared or cached channel", slotid);      
+		eDebug("frontend %d forbidden, a new preferred frontend is available, dont use shared or cached channel", slotid);      
 		return false;
 	}
 }
@@ -1395,13 +1398,13 @@ RESULT eDVBResourceManager::allocateChannel(const eDVBChannelID &channelid, eUse
 			int slotid = fe->readFrontendData(iFrontendInformation_ENUMS::frontendNumber);
 			if (frontendPreferenceAllowsChannelUse(channelid,m_cached_channel,simulate))
 			{
-				eDebug("[eDVBResourceManager] use cached_channel, frontend=%d",slotid);
+				eDebug("[dvb:eDVBResourceManager] use cached_channel, frontend=%d",slotid);
 				channel = m_cached_channel;
 				return 0;
 			}
 			else
 			{
-				eDebug("[eDVBResourceManager] strict frontend preference policy, don't use cached_channel, frontend=%d",slotid);
+				eDebug("[dvb:eDVBResourceManager] strict frontend preference policy, don't use cached_channel, frontend=%d",slotid);
 			}
 		}
 		m_cached_channel_state_changed_conn.disconnect();
@@ -1409,10 +1412,10 @@ RESULT eDVBResourceManager::allocateChannel(const eDVBChannelID &channelid, eUse
 		m_releaseCachedChannelTimer->stop();
 	}
 
-	eDebugNoSimulate("[eDVBResourceManager] allocate channel.. %04x:%04x", channelid.transport_stream_id.get(), channelid.original_network_id.get());
+	eDebugNoSimulate("[dvb:eDVBResourceManager] allocate channel.. %04x:%04x", channelid.transport_stream_id.get(), channelid.original_network_id.get());
 	for (std::list<active_channel>::iterator i(active_channels.begin()); i != active_channels.end(); ++i)
 	{
-		eDebugNoSimulate("[eDVBResourceManager] available channel.. %04x:%04x", i->m_channel_id.transport_stream_id.get(), i->m_channel_id.original_network_id.get());
+		eDebugNoSimulate("[dvb:eDVBResourceManager] available channel.. %04x:%04x", i->m_channel_id.transport_stream_id.get(), i->m_channel_id.original_network_id.get());
 		if (i->m_channel_id == channelid)
 		{
 			ePtr<iDVBFrontend> fe;
@@ -1420,13 +1423,13 @@ RESULT eDVBResourceManager::allocateChannel(const eDVBChannelID &channelid, eUse
 			int slotid = fe->readFrontendData(iFrontendInformation_ENUMS::frontendNumber);
 			if (frontendPreferenceAllowsChannelUse(channelid,i->m_channel,simulate))
 			{
-				eDebugNoSimulate("[eDVBResourceManager] found shared channel.. i=%d, frontend=%d (preferred=%d)",std::distance(active_channels.begin(), i),slotid,eDVBFrontend::getPreferredFrontend());
+				eDebugNoSimulate("[dvb:eDVBResourceManager] found shared channel.. i=%d, frontend=%d (preferred=%d)",std::distance(active_channels.begin(), i),slotid,eDVBFrontend::getPreferredFrontend());
 				channel = i->m_channel;
 				return 0;
 			}
 			else
 			{
-				eDebugNoSimulate("[eDVBResourceManager] strict frontend preference policy, don't use shared channel.. i=%d, frontend=%d (preferred=%d)",std::distance(active_channels.begin(), i),slotid,eDVBFrontend::getPreferredFrontend());
+				eDebugNoSimulate("[dvb:eDVBResourceManager] strict frontend preference policy, don't use shared channel.. i=%d, frontend=%d (preferred=%d)",std::distance(active_channels.begin(), i),slotid,eDVBFrontend::getPreferredFrontend());
 			}
 		}
 	}
@@ -1435,14 +1438,14 @@ RESULT eDVBResourceManager::allocateChannel(const eDVBChannelID &channelid, eUse
 
 	if (!m_list)
 	{
-		eDebugNoSimulate("[eDVBResourceManager] no channel list set!");
+		eDebugNoSimulate("[dvb:eDVBResourceManager] no channel list set!");
 		return errNoChannelList;
 	}
 
 	ePtr<iDVBFrontendParameters> feparm;
 	if (m_list->getChannelFrontendData(channelid, feparm))
 	{
-		eDebugNoSimulate("[eDVBResourceManager] channel not found!");
+		eDebugNoSimulate("[dvb:eDVBResourceManager] channel not found!");
 		return errChannelNotInList;
 	}
 
@@ -1453,7 +1456,7 @@ RESULT eDVBResourceManager::allocateChannel(const eDVBChannelID &channelid, eUse
 	int err = allocateFrontend(fe, feparm, simulate);
 	if (err)
 	{
-		eDebugNoSimulate("[eDVBResourceManager] can't allocate frontend!");
+		eDebugNoSimulate("[dvb:eDVBResourceManager] can't allocate frontend!");
 		return err;
 	}
 	RESULT res;
@@ -1463,7 +1466,7 @@ RESULT eDVBResourceManager::allocateChannel(const eDVBChannelID &channelid, eUse
 	if (res)
 	{
 		channel = 0;
-		eDebugNoSimulate("[eDVBResourceManager] channel id not found!");
+		eDebugNoSimulate("[dvb:eDVBResourceManager] channel id not found!");
 		return errChidNotFound;
 	}
 
@@ -1488,13 +1491,13 @@ void eDVBResourceManager::DVBChannelStateChanged(iDVBChannel *chan)
 		case iDVBChannel::state_release:
 		case iDVBChannel::state_ok:
 		{
-			eDebug("[eDVBResourceManager] stop release channel timer");
+			eDebug("[dvb:eDVBResourceManager] stop release channel timer");
 			m_releaseCachedChannelTimer->stop();
 			break;
 		}
 		case iDVBChannel::state_last_instance:
 		{
-			eDebug("[eDVBResourceManager] start release channel timer");
+			eDebug("[dvb:eDVBResourceManager] start release channel timer");
 			m_releaseCachedChannelTimer->start(3000, true);
 			break;
 		}
@@ -1505,7 +1508,7 @@ void eDVBResourceManager::DVBChannelStateChanged(iDVBChannel *chan)
 
 void eDVBResourceManager::releaseCachedChannel()
 {
-	eDebug("[eDVBResourceManager] release cached channel (timer timeout)");
+	eDebug("[dvb:eDVBResourceManager] release cached channel (timer timeout)");
 	m_cached_channel=0;
 }
 
@@ -1683,13 +1686,13 @@ int eDVBResourceManager::canAllocateChannel(const eDVBChannelID &channelid, cons
 	}
 
 		/* first, check if a channel is already existing. */
-//	eDebug("[eDVBResourceManager] allocate channel.. %04x:%04x", channelid.transport_stream_id.get(), channelid.original_network_id.get());
+//	eDebug("[dvb:eDVBResourceManager] allocate channel.. %04x:%04x", channelid.transport_stream_id.get(), channelid.original_network_id.get());
 	for (std::list<active_channel>::iterator i(active_channels.begin()); i != active_channels.end(); ++i)
 	{
-//		eDebug("[eDVBResourceManager] available channel.. %04x:%04x", i->m_channel_id.transport_stream_id.get(), i->m_channel_id.original_network_id.get());
+//		eDebug("[dvb:eDVBResourceManager] available channel.. %04x:%04x", i->m_channel_id.transport_stream_id.get(), i->m_channel_id.original_network_id.get());
 		if (i->m_channel_id == channelid)
 		{
-//			eDebug("[eDVBResourceManager] found shared channel..");
+//			eDebug("[dvb:eDVBResourceManager] found shared channel..");
 			return tuner_type_channel_default(m_list, channelid, system);
 		}
 	}
@@ -1700,7 +1703,7 @@ int eDVBResourceManager::canAllocateChannel(const eDVBChannelID &channelid, cons
 	for (std::list<active_channel>::iterator i(active_channels.begin()); i != active_channels.end(); ++i)
 	{
 		eSmartPtrList<eDVBRegisteredFrontend> &frontends = simulate ? m_simulate_frontend : m_frontend;
-//		eDebug("[eDVBResourceManager] available channel.. %04x:%04x", i->m_channel_id.transport_stream_id.get(), i->m_channel_id.original_network_id.get());
+//		eDebug("[dvb:eDVBResourceManager] available channel.. %04x:%04x", i->m_channel_id.transport_stream_id.get(), i->m_channel_id.original_network_id.get());
 		if (i->m_channel_id == ignore)
 		{
 			eDVBChannel *channel = (eDVBChannel*) &(*i->m_channel);
@@ -1761,13 +1764,13 @@ int eDVBResourceManager::canAllocateChannel(const eDVBChannelID &channelid, cons
 
 	if (!m_list)
 	{
-		eDebug("[eDVBResourceManager] no channel list set!");
+		eDebug("[dvb:eDVBResourceManager] no channel list set!");
 		goto error;
 	}
 
 	if (m_list->getChannelFrontendData(channelid, feparm))
 	{
-		eDebug("[eDVBResourceManager] channel not found!");
+		eDebug("[dvb:eDVBResourceManager] channel not found!");
 		goto error;
 	}
 	feparm->getSystem(system);
