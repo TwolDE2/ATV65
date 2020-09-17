@@ -1015,7 +1015,7 @@ int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 		if (!::close(m_fd))
 			m_fd=-1;
 		else
-			eWarning("[eDVBFrontend] couldnt close frontend %d", m_dvbid);
+			eDebug("[eDVBFrontend %d] couldnt close frontend m_fd: %d", m_dvbid, m_fd);
 	}
 	else if (m_simulate)
 	{
