@@ -1340,7 +1340,7 @@ RESULT eDVBServicePlay::start()
 	eDVBServicePMTHandler::serviceType type = eDVBServicePMTHandler::livetv;
 
 	if(tryFallbackTuner(/*REF*/service, /*REF*/m_is_stream, m_is_pvr, /*simulate*/false))
-		eDebug("ServicePlay: fallback tuner selected");
+		eDebug("[servicedvb:eDVBServicePlay] fallback tuner selected");
 
 		/* in pvr mode, we only want to use one demux. in tv mode, we're using
 		   two (one for decoding, one for data source), as we must be prepared
@@ -1743,8 +1743,8 @@ RESULT eDVBServicePlay::subServices(ePtr<iSubserviceList> &ptr)
 
 RESULT eDVBServicePlay::timeshift(ePtr<iTimeshiftService> &ptr)
 {
-	ptr = 0;
-	eDebug("[servicedvb:eDVBServicePlay] timeshift");
+	ptr = nullptr;
+	eDebug("[servicedvb:eDVBServicePlay] timeshift twol");
 	if (m_timeshift_enabled || !m_is_pvr)
 	{
 		if (!m_timeshift_enabled)

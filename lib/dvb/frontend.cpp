@@ -769,7 +769,7 @@ int eDVBFrontend::openFrontend()
 		{
 			if (::ioctl(m_fd, FE_GET_INFO, &fe_info) < 0)
 			{
-				eWarning("[eDVBFrontend] ioctl FE_GET_INFO failed: %m");
+				eDebug("[eDVBFrontend] ioctl FE_GET_INFO close m_fd - failed errno %m ", errno );
 				::close(m_fd);
 				m_fd = -1;
 				return -1;
@@ -1850,6 +1850,7 @@ int eDVBFrontend::readFrontendData(int type)
 				
 				}
 #else
+				eDebug("[eDVBFrontend] ioctl FE_READ_STATUS");
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
 					eDebug("[eDVBFrontend] FE_READ_STATUS failed (%m)");
 				ioctlMeasureEval("FE_READ_STATUS");
