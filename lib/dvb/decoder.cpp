@@ -391,6 +391,7 @@ int eDVBVideo::startPid(int pid, int type)
 		pes.flags    = DMX_IMMEDIATE_START;
 #else
 		pes.flags    = 0;
+#endif
 		eDebugNoNewLineStart("[decoder:eDVBVideo%d] DMX_SET_PES_FILTER pid=0x%04x ", m_dev, pid);
 		if (::ioctl(m_fd_demux, DMX_SET_PES_FILTER, &pes) < 0)
 		{
@@ -406,6 +407,7 @@ int eDVBVideo::startPid(int pid, int type)
 			return -errno;
 		}
 		eDebugNoNewLine("ok\n");
+#endif
 	}
 
 	if (m_fd >= 0)
@@ -735,6 +737,7 @@ int eDVBPCR::startPid(int pid)
 	pes.flags    = DMX_IMMEDIATE_START;
 #else
 	pes.flags    = 0;
+#endif
 	eDebugNoNewLineStart("[decoder:eDVBPCR%d] DMX_SET_PES_FILTER pid=0x%04x ", m_dev, pid);
 	if (::ioctl(m_fd_demux, DMX_SET_PES_FILTER, &pes) < 0)
 	{
@@ -750,6 +753,7 @@ int eDVBPCR::startPid(int pid)
 		return -errno;
 	}
 	eDebugNoNewLine("ok\n");
+#endif
 	return 0;
 }
 
@@ -819,6 +823,7 @@ int eDVBTText::startPid(int pid)
 		return -errno;
 	}
 	eDebugNoNewLine("ok\n");
+#if not defined(__sh__) // already startet cause of DMX_IMMEDIATE_START
 	eDebugNoNewLineStart("[decoder:eDVBText%d] DEMUX_START ", m_dev);
 	if (::ioctl(m_fd_demux, DMX_START) < 0)
 	{
@@ -826,6 +831,7 @@ int eDVBTText::startPid(int pid)
 		return -errno;
 	}
 	eDebugNoNewLine("ok\n");
+#endif
 	return 0;
 }
 
