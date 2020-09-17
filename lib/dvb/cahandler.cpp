@@ -264,7 +264,7 @@ int eDVBCAHandler::registerService(const eServiceReferenceDVB &ref, int adapter,
 	{
 		caservice = (services[ref] = new eDVBCAService(ref));
 		caservice->setAdapter(adapter);
-		eDebug("[eDVBCAService] new service %s", ref.toString().c_str() );
+		eDebug("[cahandler:eDVBCAService] new service %s", ref.toString().c_str() );
 	}
 	caservice->addServiceType(servicetype);
 
@@ -282,11 +282,11 @@ int eDVBCAHandler::registerService(const eServiceReferenceDVB &ref, int adapter,
 		if (iter < max_demux_slots)
 		{
 			caservice->setUsedDemux(iter, demux_nums[i] & 0xFF);
-			eDebug("[eDVBCAService] add demux %d to slot %d service %s", demux_nums[i] & 0xFF, iter, ref.toString().c_str());
+			eDebug("[cahandler:eDVBCAService] add demux %d to slot %d service %s", demux_nums[i] & 0xFF, iter, ref.toString().c_str());
 		}
 		else
 		{
-			eDebug("[eDVBCAService] no more demux slots free for service %s!!", ref.toString().c_str());
+			eDebug("[cahandler:eDVBCAService] no more demux slots free for service %s!!", ref.toString().c_str());
 			return -1;
 		}
 	}
@@ -313,7 +313,7 @@ int eDVBCAHandler::unregisterService(const eServiceReferenceDVB &ref, int adapte
 	CAServiceMap::iterator it = services.find(ref);
 	if (it == services.end())
 	{
-		eDebug("[eDVBCAService] try to unregister non registered %s", ref.toString().c_str());
+		eDebug("[cahandler:eDVBCAService] try to unregister non registered %s", ref.toString().c_str());
 		return -1;
 	}
 	else
@@ -330,7 +330,7 @@ int eDVBCAHandler::unregisterService(const eServiceReferenceDVB &ref, int adapte
 				{
 					if (!freed && caservice->getUsedDemux(iter) == demux_nums[i])
 					{
-						eDebug("[eDVBCAService] free slot %d demux %d for service %s", iter, demux_nums[i], caservice->toString().c_str());
+						eDebug("[cahandler:eDVBCAService] free slot %d demux %d for service %s", iter, demux_nums[i], caservice->toString().c_str());
 						caservice->setUsedDemux(iter, 0xFF);
 						freed = true;
 					}
@@ -344,7 +344,7 @@ int eDVBCAHandler::unregisterService(const eServiceReferenceDVB &ref, int adapte
 			}
 			if (!freed)
 			{
-				eDebug("[eDVBCAService] couldn't free demux slot for demux %d", demux_nums[i]);
+				eDebug("[cahandler:eDVBCAService] couldn't free demux slot for demux %d", demux_nums[i]);
 			}
 			if (i || loops == 1)
 			{
@@ -364,7 +364,7 @@ int eDVBCAHandler::unregisterService(const eServiceReferenceDVB &ref, int adapte
 					}
 					else
 					{
-						eDebug("[eDVBCAService] can not send updated demux info");
+						eDebug("[cahandler:eDVBCAService] can not send updated demux info");
 					}
 				}
 			}
@@ -494,7 +494,7 @@ eDVBCAService::eDVBCAService(const eServiceReferenceDVB &service)
 
 eDVBCAService::~eDVBCAService()
 {
-	eDebug("[eDVBCAService] free service %s", m_service.toString().c_str());
+	eDebug("[cahandler:eDVBCAService] free service %s", m_service.toString().c_str());
 }
 
 std::string eDVBCAService::toString()
@@ -576,7 +576,7 @@ int eDVBCAService::buildCAPMT(eTable<ProgramMapSection> *ptr)
 
 	if (data_demux == -1)
 	{
-		eDebug("[eDVBCAService] no data demux found for service %s", m_service.toString().c_str());
+		eDebug("[cahandler:eDVBCAService] no data demux found for service %s", m_service.toString().c_str());
 		return -1;
 	}
 
@@ -621,14 +621,14 @@ int eDVBCAService::buildCAPMT(eTable<ProgramMapSection> *ptr)
 		crc = (*i)->getCrc32();
 		if (build_hash == m_prev_build_hash && crc == m_crc32)
 		{
-			eDebug("[eDVBCAService] don't build/send the same CA PMT twice");
+			eDebug("[cahandler:eDVBCAService] don't build/send the same CA PMT twice");
 			return -1;
 		}
 		CaProgramMapSection capmt(*i++, m_prev_build_hash ? LIST_UPDATE : LIST_ONLY, CMD_OK_DESCRAMBLING);
 
 		while( i != ptr->getSections().end() )
 		{
-//			eDebug("[eDVBCAService] append");
+//			eDebug("[cahandler:eDVBCAService] append");
 			capmt.append(*i++);
 		}
 
@@ -738,7 +738,7 @@ int eDVBCAService::buildCAPMT(ePtr<eDVBService> &dvbservice)
 
 	if (data_demux == -1)
 	{
-		eDebug("[eDVBCAService] no data demux found for service %s", m_service.toString().c_str());
+		eDebug("[cahandler:eDVBCAService] no data demux found for service %s", m_service.toString().c_str());
 		return -1;
 	}
 

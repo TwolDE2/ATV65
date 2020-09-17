@@ -2060,6 +2060,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 //		eDebug("[eDVBFrontend] check tuner %d stats:%d in_use: %d tmp: %d", sec_fe->getDVBID(), sec_fe->m_state, prev->m_inuse, tmp);
 		if (sec_fe != this && !prev->m_inuse)
 		{
+			eDebug("[eDVBFrontend] tuner %d is closed", sec_fe->m_dvbid)
 			int state = sec_fe->m_state;
 			if (state != eDVBFrontend::stateIdle && state != stateClosed)
 			{

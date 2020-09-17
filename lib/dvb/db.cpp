@@ -235,7 +235,7 @@ int eDVBService::isPlayable(const eServiceReference &ref, const eServiceReferenc
 	bool remote_fallback_enabled = eConfigManager::getConfigBoolValue("config.usage.remote_fallback_enabled", false);
 
 	if (eDVBResourceManager::getInstance(res_mgr))
-		eDebug("[eDVBService] isPlayble... no res manager!!");
+		eDebug("[eDVBService] isPlayable... no res manager!!");
 	else
 	{
 		eDVBChannelID chid, chid_ignore;
@@ -275,7 +275,7 @@ int eDVBService::isPlayable(const eServiceReference &ref, const eServiceReferenc
 						}
 					}
 				}
-				eDebug("[eDVBService] isPlayble... error in python code");
+				eDebug("[eDVBService] isPlayable... error in python code");
 				PyErr_Print();
 			}
 			return 1;
@@ -859,13 +859,10 @@ void eDVBDB::saveServicelist(const char *file)
 					if (g)
 						fprintf(g, ",MIS/PLS:%d:%d:%d", sat.is_id, sat.pls_code & 0x3FFFF, sat.pls_mode & 3);
 				}
+				// Old lamedb format cannot have multiple optional values so we must pad lamedb with default multistream 
+				// values if they will be followed by t2mi values. In lamedb5 format this is not necessary.
 				else if (static_cast<unsigned int>(sat.t2mi_plp_id) != eDVBFrontendParametersSatellite::No_T2MI_PLP_Id)
 				{
-					/*
-					 * Old lamedb format cannot have multiple optional values
-					 * so we must pad lamedb with default multistream values
-					 * otherwise the t2mi values will be stored on mulistream ones
-					 */
 					fprintf(f, ":%d:%d:%d", eDVBFrontendParametersSatellite::No_Stream_Id_Filter,
 						eDVBFrontendParametersSatellite::PLS_Default_Gold_Code, eDVBFrontendParametersSatellite::PLS_Gold);
 				}
@@ -1108,7 +1105,7 @@ void eDVBDB::loadBouquet(const char *path)
 		}
 	}
 
-	eDebug("[eDVBDB] loading bouquet... %s", file_path.c_str());
+	/*  eDebug("[eDVBDB] loading bouquet... %s", file_path.c_str()); */
 	CFile fp(file_path, "rt");
 
 	if (fp)
@@ -1218,7 +1215,7 @@ void eDVBDB::loadBouquet(const char *path)
 		}
 		bouquet.flushChanges();
 	}
-	eDebug("[eDVBDB] %d entries in Bouquet %s", entries, bouquet_name.c_str());
+	/* eDebug("[eDVBDB] %d entries in Bouquet %s", entries, bouquet_name.c_str()); */
 }
 
 void eDVBDB::reloadBouquets()
