@@ -264,16 +264,18 @@ class Navigation:
 			self.currentlyPlayingService = None
 
 	def dispatchRecordEvent(self, rec_service, event):
-#		print "record_event", rec_service, event
+#		print "[NAVIGATION]record_event", rec_service, event
 		for x in self.record_event:
 			x(rec_service, event)
 
 	def playService(self, ref, checkParentalControl=True, forceRestart=False, adjust=True):
 		oldref = self.currentlyPlayingServiceOrGroup
+		print("[Navigation]00 playing oldref", oldref and oldref.toString())
+		print("[Navigation]00 playing ref", ref and ref.toString())
 		if ref and oldref and ref == oldref and not forceRestart:
-			print("ignore request to play already running service(1)")
+			print("[Navigation] ignore request to play already running service(1)")
 			return 1
-		print("playing", ref and ref.toString())
+		print("[Navigation]01 playing ref", ref and ref.toString())
 		if path.exists("/proc/stb/lcd/symbol_signal") and config.lcd.mode.value == '1':
 			try:
 				if '0:0:0:0:0:0:0:0:0' not in ref.toString():
@@ -301,15 +303,15 @@ class Navigation:
 			if ref.flags & eServiceReference.isGroup:
 				oldref = self.currentlyPlayingServiceReference or eServiceReference()
 				playref = getBestPlayableServiceReference(ref, oldref)
-				print("playref", playref)
+				print("[Navigation]1 oldref:%s playref:%s" % (oldref.toString(), playref.toString()))
 				if playref and oldref and playref == oldref and not forceRestart:
-					print("ignore request to play already running service(2)")
+					print("[Navigation] ignore request to play already running service(2)")
 					return 1
 				if not playref:
 					alternativeref = getBestPlayableServiceReference(ref, eServiceReference(), True)
 					self.stopService()
 					if alternativeref and self.pnav and self.pnav.playService(alternativeref):
-						print("Failed to start", alternativeref)
+						print("[Navigation] Failed to start", alternativeref)
 					return 0
 				elif checkParentalControl and not parentalControl.isServicePlayable(playref, boundFunction(self.playService, checkParentalControl = False)):
 					if self.currentlyPlayingServiceOrGroup and InfoBarInstance and InfoBarInstance.servicelist.servicelist.setCurrent(self.currentlyPlayingServiceOrGroup, adjust):
@@ -317,14 +319,16 @@ class Navigation:
 					return 1
 			else:
 				playref = ref
+				print("[Navigation]1 playref = ref %s" % ref.toString())
 			if self.pnav:
 				self.pnav.stopService()
 				self.currentlyPlayingServiceReference = playref
 				self.currentlyPlayingServiceOrGroup = ref
+				print("[Navigation]2 playref= %s ref = %s" % (playref.toString(), ref.toString()))
 				if InfoBarInstance and InfoBarInstance.servicelist.servicelist.setCurrent(ref, adjust):
 					self.currentlyPlayingServiceOrGroup = InfoBarInstance.servicelist.servicelist.getCurrent()
 				if self.pnav.playService(playref):
-					print("Failed to start", playref)
+				#	print("[Navigation] Failed to start", playref)
 					self.currentlyPlayingServiceReference = None
 					self.currentlyPlayingServiceOrGroup = None
 				return 0
@@ -347,7 +351,7 @@ class Navigation:
 
 	def recordService(self, ref, simulate=False, type=pNavigation.isUnknownRecording):
 		service = None
-		if not simulate: print("recording service: %s" % (str(ref)))
+		if not simulate: print("[Navigation]recording service: %s" % (str(ref)))
 		if isinstance(ref, ServiceReference.ServiceReference):
 			ref = ref.ref
 		if ref:
@@ -355,7 +359,7 @@ class Navigation:
 				ref = getBestPlayableServiceReference(ref, eServiceReference(), simulate)
 			service = ref and self.pnav and self.pnav.recordService(ref, simulate, type)
 			if service is None:
-				print("record returned non-zero")
+				print("[Navigation] record returned non-zero")
 		return service
 
 	def stopRecordService(self, service):
@@ -400,7 +404,7 @@ class Navigation:
 					if lastrecordEnd == 0 or lastrecordEnd >= timer.begin:
 						if timer.afterEvent < 2:
 							timer.afterEvent = 2
-							print("Set after-event for recording %s to DEEP-STANDBY." % timer.name)
+							print("[NAVIGATION]Set after-event for recording %s to DEEP-STANDBY." % timer.name)
 						if timer.end > lastrecordEnd:
 							lastrecordEnd = timer.end + 900
 			rec = True
