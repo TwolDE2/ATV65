@@ -767,6 +767,7 @@ int eDVBFrontend::openFrontend()
 		}
 		if (m_delsys.empty())
 		{
+			eDebug("[eDVBFrontend] m_delsys empty ioctl FE_GET_INFO issued");
 			if (::ioctl(m_fd, FE_GET_INFO, &fe_info) < 0)
 			{
 				eDebug("[eDVBFrontend] ioctl FE_GET_INFO close m_fd - failed errno %m ", errno );
