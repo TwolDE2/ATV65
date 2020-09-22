@@ -877,6 +877,7 @@ int eDVBFrontend::openFrontend()
 		{
 			m_simulate_fe->m_delsys = m_delsys;
 		}
+		eDebug("[eDVBFrontend] m_sn start and activate m_fd: %d", m_fd);
 		m_sn = eSocketNotifier::create(eApp, m_fd, eSocketNotifier::Read, false);
 		CONNECT(m_sn->activated, eDVBFrontend::feEvent);
 	}
@@ -1024,7 +1025,7 @@ int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 			setTone(iDVBFrontend::toneOff);
 		setVoltage(iDVBFrontend::voltageOff);
 	}
-
+	eDebug("[eDVBFrontend %d] frontendclose m_sn=0 m_state stateClosed fd: %d", m_dvbid, m_fd);
 	m_sn=0;
 	m_state = stateClosed;
 
@@ -2066,6 +2067,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 			int state = sec_fe->m_state;
 			if (state != eDVBFrontend::stateIdle && state != stateClosed)
 			{
+				eDebug("[eDVBFrontend] tuneLoopint tuner %d is closed m_sn stop", m_dvbid);
 				sec_fe->m_sn->stop();
 				state = sec_fe->m_state = stateIdle;
 			}
@@ -2280,6 +2282,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 						m_state = stateLock;
 						m_stateChanged(this);
 						feEvent(-1); // flush events
+						eDebugNoSimulate("[eDVBFrontend%d] tuneLoopint m_sn start", m_dvbid);
 						m_sn->start();
 						break;
 					}
@@ -2674,6 +2677,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 		oparm.getSystem(type);
 		eDebug("setting frontend %d events: %s", m_dvbid, recvEvents?"on":"off");
 		if (recvEvents)
+			eDebug("setFrontend %d m_sn start", m_dvbid);
 			m_sn->start();
 		feEvent(-1); // flush events
 		struct dtv_property p[18];
@@ -3250,6 +3254,7 @@ RESULT eDVBFrontend::tune(const iDVBFrontendParameters &where, bool blindscan)
 	}
 
 	if (!m_simulate)
+		eDebug("[eDVBFrontend] tune:finished? m_sn->stop()");
 		m_sn->stop();
 
 	m_sec_sequence.clear();
